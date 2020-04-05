@@ -26,8 +26,8 @@ window.addEventListener('keydown', function(e) {
           't': Math.round(+time[time.length-1] + time[time.length-2]*60 + (time[time.length-3]||0)*3600 - cumulPause/1000)
         }),
         onload: function(r) {
-        	notif.textContent = r.responseText;
-      	}
+            notif.innerHTML = r.responseText;
+        }
       });
       break;
     }

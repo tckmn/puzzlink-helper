@@ -50,12 +50,14 @@ class PuzzlinkHelper(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
         parts = data['url'].split('/')
+        genre = patch(parts[0])
         flags, w, h = ([None]+parts[1:3]) if parts[1].isdigit() else parts[1:4]
         c.execute('INSERT INTO d VALUES (?,NULL,?,?,datetime("now","localtime"),?,?,?)',
-                (patch(parts[0]), flags, data['url'], w, h, data['t']))
+                (genre, flags, data['url'], w, h, data['t']))
         conn.commit()
+        num, time = c.execute('SELECT COUNT(*), SUM(t) FROM d WHERE genre = ?', (genre,)).fetchone()
         self.send_response(200)
         self.end_headers()
-        self.wfile.write('saved time: {}'.format(tts(data['t'])).encode())
+        self.wfile.write('saved time: {}<br>{} {} puzzles solved in {}'.format(tts(data['t']), num, genre, tts(time)).encode())
 
 http.server.HTTPServer(('', PORT), PuzzlinkHelper).serve_forever()
